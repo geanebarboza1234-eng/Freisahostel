@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FreiSa Hostel - hospitalidade que conecta pessoas.</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
+    
+    /* HERO */
+    .hero { height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden; }
+    .hero-carousel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+    .hero-carousel-slides { display: flex; width: 100%; height: 100%; transition: transform 1s ease-in-out; }
+    .hero-carousel-slide { min-width: 100%; height: 100%; background-size: cover; background-position: center; position: relative; }
+    .hero-carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .hero-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.35); color: white; border: none; padding: 12px 18px; cursor: pointer; font-size: 2rem; transition: background 0.3s; z-index: 2; border-radius: 8px; }
+    .hero-btn:hover { background: rgba(0,0,0,0.6); }
+    .hero-btn.prev { left: 20px; } 
+    .hero-btn.next { right: 20px; }
+    .hero-indicators { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
+    .hero-indicators .indicator { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.45); cursor: pointer; transition: background 0.3s; }
+    .hero-indicators .indicator.active { background: white; box-shadow: 0 0 6px rgba(0,0,0,0.25); }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .hero-content { position: relative; z-index: 1; animation: fadeIn 1.5s ease-in; padding: 0 20px; }
+    .hero-content h1 { font-size: 3.5rem; font-weight: 300; margin-bottom: 20px; }
+    .hero-content p { font-size: 1.3rem; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    
+    /* BUTTONS */
+    .btn { display: inline-block; padding: 15px 40px; background: #27ae60; color: white; text-decoration: none; border-radius: 50px; font-size: 1.1rem; transition: all 0.3s; border: none; cursor: pointer; }
+    .btn:hover { background: #1e8449; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .btn-blue { background: #3498db; } 
+    .btn-blue:hover { background: #2980b9; }
+    .btn-white { background: white; color: #27ae60; } 
+    .btn-white:hover { background: #f0f0f0; }
+
+    /* SECTIONS */
+    section { padding: 80px 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-title { text-align: center; font-size: 2.5rem; font-weight: 300; margin-bottom: 15px; }
+    .section-subtitle { text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 60px; max-width: 800px; margin-left: auto; margin-right: auto; }
+
+    /* HOUSE CARD */
+    .house-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 60px; }
+    .house-name { font-size: 2rem; font-weight: 300; padding: 30px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; }
+
+    /* CAROUSEL */
+    .carousel { position: relative; height: 500px; overflow: hidden; cursor: pointer; }
+    .carousel-slides { display: flex; height: 100%; transition: transform 0.5s ease; }
+    .carousel-slide { min-width: 100%; height: 100%; background-size: cover; background-repeat: no-repeat; background-position: center; background-color: #f0f0f0; }
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px 20px; cursor: pointer; font-size: 1.5rem; transition: background 0.3s; z-index: 3; }
+    .carousel-btn:hover { background: rgba(0,0,0,0.8); }
+    .carousel-btn.prev { left: 10px; } 
+    .carousel-btn.next { right: 10px; }
+    .carousel-indicators { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 3; }
+    .indicator { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.3s; }
+    .indicator.active { background: white; }
+
+    /* LIGHTBOX */
+    .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; }
+    .lightbox.active { display: flex; }
+    .lightbox-content { position: relative; max-width: 90%; max-height: 90%; display: flex; align-items: center; justify-content: center; }
+    .lightbox-image { max-width: 100%; max-height: 90vh; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 20px; right: 40px; font-size: 3rem; color: white; cursor: pointer; z-index: 10000; background: none; border: none; transition: transform 0.3s; }
+    .lightbox-close:hover { transform: scale(1.2); }
+    .lightbox-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); color: white; border: none; padding: 20px 25px; cursor: pointer; font-size: 2rem; transition: background 0.3s; z-index: 10000; }
+    .lightbox-btn:hover { background: rgba(255,255,255,0.4); }
+    .lightbox-btn.prev { left: 20px; } 
+    .lightbox-btn.next { right: 20px; }
+
+    /* HOUSE INFO */
+    .house-info { padding: 30px; }
+    .house-location { font-size: 1.1rem; margin-bottom: 5px; }
+    .house-specs { color: #666; margin-bottom: 20px; }
+    .divider { height: 1px; background: #e0e0e0; margin: 30px 0; }
+
+    /* HIGHLIGHTS */
+    .highlights { display: grid; gap: 20px; }
+    .highlight-item { display: flex; gap: 15px; }
+    .highlight-icon { font-size: 1.5rem; }
+    .highlight-text h3 { font-weight: 500; margin-bottom: 5px; }
+    .highlight-text p { color: #666; font-size: 0.95rem; }
+
+    .about-space h3 { font-size: 1.3rem; margin-bottom: 15px; }
+    .about-preview { color: #666; margin-bottom: 15px; white-space: pre-line; }
+    .show-more-btn { background: none; border: none; color: #27ae60; text-decoration: underline; cursor: pointer; font-size: 1rem; font-weight: 500; }
+    .cta-btn-wrapper { text-align: center; margin-top: 30px; }
+
+    /* BENEFITS */
+    .benefits-section { background: #f8f9fa; }
+    .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .benefit-card { background: white; padding: 30px; border-radius: 10px; text-align: center; transition: all 0.3s; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+    .benefit-card:hover { transform: translateY(-5px); background: #e8f5e9; }
+    .benefit-icon { font-size: 3rem; margin-bottom: 15px; }
+
+    /* EXPERIENCES */
+    .experiences-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .experiences-section .section-subtitle { color: rgba(255,255,255,0.95); font-weight: 500; }
+    .experiences-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .experience-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 10px; transition: all 0.3s; }
+    .experience-card:hover { background: rgba(255,255,255,0.2); transform: translateY(-5px); }
+    .experience-icon { font-size: 3rem; margin-bottom: 15px; }
+
+    /* LOCATION */
+    .location-section { background: #f8f9fa; }
+    .location-text { max-width: 900px; margin: 0 auto; font-size: 1.05rem; line-height: 1.8; white-space: pre-line; }
+
+    /* FAQ */
+    .faq-item { background: white; margin-bottom: 15px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .faq-question { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 1.1rem; transition: background 0.3s; }
+    .faq-question:hover { background: #f8f9fa; }
+    .faq-icon { font-size: 1.5rem; transition: transform 0.3s; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .faq-answer-content { padding: 0 20px 20px; color: #666; line-height: 1.8; }
+    .faq-item.active .faq-answer { max-height: 1000px; }
+    .faq-item.active .faq-icon { transform: rotate(45deg); }
+
+    /* CTA RESERVATION SECTION */
+    .cta-section {
+      background: linear-gradient(135deg, #fa6866 0%, #fd8365 100%);
+      min-height: 95vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    
+    .cta-section .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 36px;
+      min-height: 65vh;
+      width: 100%;
+      max-width: 1200px;
+    }
+    
+    .reserve-card {
+      flex: 1 1 320px;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 32px 28px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .reserva-card-titulo {
+      font-size: 2rem;
+      font-weight: 500;
+      text-align: center;
+      color: white;
+      margin-bottom: 26px;
+    }
+    
+    .reserva-card-chamada {
+      font-size: 1.18rem;
+      color: #fff !important;
+      font-weight: 500;
+    }
+    
+    .reserve-row {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 15px;
+    }
+    
+    .reserva-label {
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 1.07px;
+      font-size: 1.09rem;
+      margin-bottom: 3px;
+      display: block;
+    }
+    
+    .reserva-input {
+      width: 100%;
+      margin-top: 7px;
+      background: #ededed;
+      border: none;
+      height: 54px;
+      border-radius: 10px;
+      font-size: 1.13rem;
+      padding-left: 20px;
+      color: #555;
+      outline: none;
+      cursor: pointer;
+    }
+    
+    /* CHECK TIMES - mais destacado */
+    .check-times {
+      display: inline-block;
+      margin: 12px auto 18px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 1.06rem;
+      font-weight: 700;
+      border-radius: 999px;
+      text-align: center;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.08);
+      max-width: 320px;
+      animation: subtlePulse 3s infinite;
+    }
+    @keyframes subtlePulse {
+      0% { transform: translateY(0); box-shadow: 0 6px 22px rgba(0,0,0,0.18); }
+      50% { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(0,0,0,0.22); }
+      100% { transform: translateY(0); box-shadow: 0 6px 22px rgba(0,0,0,0.18); }
+    }
+    .check-times strong { color: #fff; font-weight: 800; margin-left: 6px; }
+
+    .extra-options {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+    }
+    
+    .extra-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .extra-option:last-child {
+      border-bottom: none;
+    }
+    
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      flex: 1;
+    }
+    
+    .option-text {
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+    
+    .option-price {
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: rgba(250, 104, 102, 0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.3);
+      transition: 0.3s;
+      border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #2ecc71;
+    }
+    
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(28px);
+    }
+    
+    .price-summary {
+      margin: 20px 0;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: white;
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 1.02rem;
+    }
+    
+    .price-row.total {
+      border-top: 2px solid rgba(255, 255, 255, 0.3);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    
+    .reserve-actions {
+      width: 100%;
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .reserve-actions button {
+      width: 100%;
+      background: #fa6866;
+      color: white;
+      font-size: 1.24rem;
+      font-weight: 500;
+      padding: 19px 0;
+      border: none;
+      border-radius: 33px;
+      box-shadow: 0 10px 26px rgba(250, 104, 102, 0.13);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    
+    .reserve-actions button:hover {
+      background: #e85856;
+      box-shadow: 0 12px 30px rgba(250, 104, 102, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Disabled state for action buttons (prevent clicking before bed selection) */
+    .reserve-actions button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      background: linear-gradient(135deg, #d8d8d8 0%, #cfcfcf 100%);
+      color: #666;
+    }
+    
+    .reserve-error {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 1rem;
+      color: #FF5050;
+    }
+    
+    .reserva-secundario {
+      text-align: center;
+      margin-top: 29px;
+      font-size: 1.04rem;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* TRANSFER OPTIONS (novos botões) */
+    .transfer-options {
+      margin: 16px 0;
+      padding: 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      color: #fff;
+    }
+    .transfer-note {
+      font-size: 0.98rem;
+      margin-bottom: 10px;
+      color: #fff;
+      opacity: 0.95;
+      font-weight: 600;
+    }
+    .transfer-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .transfer-btn {
+      flex: 1 1 calc(50% - 10px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: white;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .transfer-btn .transfer-badge {
+      background: rgba(255,255,255,0.14);
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .transfer-btn:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 12px 26px rgba(0,0,0,0.18); }
+    .transfer-btn:active { transform: translateY(-1px) scale(0.995); }
+    .transfer-btn.active { box-shadow: 0 14px 36px rgba(0,0,0,0.25); transform: translateY(-6px); }
+
+    /* specific colors */
+    .transfer-hostel { background: linear-gradient(90deg,#2ecc71,#27ae60); }
+    .transfer-airport { background: linear-gradient(90deg,#3498db,#2d8fcb); }
+
+    /* subtle pulse animation when selected */
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+      50% { box-shadow: 0 18px 40px rgba(0,0,0,0.22); }
+      100% { box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    }
+    .transfer-btn.active { animation: pulseGlow 2.2s infinite; }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.2s;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 920px;
+      width: 96%;
+      position: relative;
+      animation: slideUp 0.25s;
+      margin: 20px auto;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #ba1818;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* CALENDAR GRID */
+    #calendarGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      font-size: 1.07rem;
+      grid-auto-rows: minmax(44px, 1fr);
+      max-height: calc(60vh);
+      overflow: auto;
+      padding: 6px;
+    }
+    .calendar-weekday {
+      text-align: center;
+      padding: 8px;
+      font-weight: 600;
+      color: #ba1818;
+      font-size: 0.9rem;
+    }
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      padding: 6px;
+    }
+    .calendar-day.outside { cursor: default; background: transparent; }
+    .calendar-day.available { background: #2ecc71; color: #fff; }
+    .calendar-day.available:hover { background: #27ae60; transform: scale(1.03); }
+    .calendar-day.available.selected { background: #27ae60; box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3); }
+    .calendar-day.reserved { background: #e74c3c; color: #fff; cursor: not-allowed; opacity: 0.95; }
+    .calendar-day.today { font-weight: 700; box-shadow: inset 0 0 0 2px rgba(186, 24, 24, 0.5); }
+    .calendar-day-num { font-size: 1rem; line-height: 1; }
+    .calendar-price { font-size: 0.75rem; margin-top: 6px; opacity: 0.95; font-weight: 700; }
+    .calendar-day.reserved .calendar-price { opacity: 0.9; }
+    .calendar-day.outside .calendar-price { display: none; }
+
+    @keyframes slideUp {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-text { white-space: pre-line; line-height: 1.8; color: #333; }
+
+    /* SUITES GRID (visual modelled after beds, non-intrusive) */
+    .suites-grid { display: grid; grid-template-columns: repeat(3, 120px); gap: 18px; justify-content:center; align-items:center; padding: 12px 6px; }
+    .suite { width:120px;height:100px;border-radius:10px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .18s;border:2px solid transparent; }
+    .suite:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(8,15,30,0.06); }
+    .suite.selected { border-color: #27ae60; box-shadow: 0 10px 26px rgba(39,174,96,0.12); transform: translateY(-6px) scale(1.02); background: linear-gradient(180deg,#ffffff,#e8fff0); }
+    .suite .suite-label { font-weight:700; color:#111; margin-bottom:6px; }
+    .suite .suite-price { font-size:0.95rem; color:#444; font-weight:700; }
+    .suites-legend { display:flex; gap:12px; align-items:center; justify-content:center; margin-top:12px; color:#555; font-size:14px; }
+    .legend-swatch { width:18px;height:12px;border-radius:4px; }
+    .sw-suite-available { background:#f3f4f6; border:1px solid rgba(12,18,37,0.05); }
+    .sw-suite-selected { background:#27ae60; }
+
+    @media (max-width: 920px) {
+      .suites-grid { grid-template-columns: repeat(3, 92px); gap:12px; }
+      .suite { width:92px;height:78px; }
+    }
+
+    /* Focus/keyboard visibility for beds and calendar */
+    .calendar-day:focus, .bed:focus, .suite:focus { outline: 3px solid rgba(46,204,113,0.25); outline-offset: 2px; }
+
+    /* Ensure check button states are visually accessible */
+    .reserve-actions button[aria-disabled="true"] { pointer-events: none; opacity: 0.6; }
+
+    /* small responsive tweak for beds modal */
+    .beds-modal .modal-content { max-width: 680px; padding: 18px; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-carousel">
+      <div class="hero-carousel-slides" id="heroSlides">
+        <div class="hero-carousel-slide" style="background-image: url('https://i.imgur.com/JXIOXmJ.jpeg');"></div>
+        <div class="hero-carousel-slide" style="background-image: url('https://i.imgur.com/sjw1dGZ.jpeg');"></div>
+        <div class="hero-carousel-slide" style="background-image: url('https://i.imgur.com/ftDKRIH.jpeg');"></div>
+        <div class="hero-carousel-slide" style="background-image: url('https://i.imgur.com/YDrxJUS.jpeg');"></div>
+      </div>
+
+      <button class="hero-btn prev" id="heroPrev" aria-label="Anterior">‹</button>
+      <button class="hero-btn next" id="heroNext" aria-label="Próximo">›</button>
+
+      <div class="hero-indicators" id="heroIndicators"></div>
+    </div>
+
+    <div class="hero-content">
+      <h1>FreiSa Hostel</h1>
+      <p>Hospitalidade Que Conecta Pessoas.</p>
+      <div class="hero-buttons">
+        <a href="#contato" class="btn" id="btn-reserve-scroll">Reserve Aqui</a>
+        <a href="#casas" class="btn btn-white" id="btn-casas-scroll">Conheça Nossas Instalações</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- POUSADAS -->
+  <section id="casas">
+    <div class="container">
+      <h2 class="section-title">Nossos quartos</h2>
+      <p class="section-subtitle">Escolha o Hostel perfeito para sua experiência inesquecível!</p>
+
+      <!-- POUSADA 1 (Quarto Feminino FreiSa) -->
+      <div class="house-card">
+        <div class="house-name">Quarto Feminino FreiSa</div>
+
+        <div class="carousel" id="carousel1" onclick="openLightbox(1)">
+          <div class="carousel-slides" id="slides1">
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/5RmzKKS.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/32uJWkj.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Pyt9BLd.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/QoRrocG.jpeg');"></div>
+          </div>
+          <button class="carousel-btn prev" onclick="event.stopPropagation(); moveSlide(1, -1)">‹</button>
+          <button class="carousel-btn next" onclick="event.stopPropagation(); moveSlide(1, 1)">›</button>
+          <div class="carousel-indicators" id="indicators1"></div>
+        </div>
+
+        <div class="house-info">
+          <p class="house-location">Quarto em Rio de Janeiro, Brasil</p>
+          <p class="house-specs">14 camas · 4 banheiros compartilhados</p>
+
+          <div class="divider"></div>
+
+          <div class="highlights">
+            <div class="highlight-item"><div class="highlight-icon">🚿</div><div class="highlight-text"><h3>Banheiro compartilhado</h3><p>Banheiro de uso coletivo, sempre limpo e organizado, disponível para todos os hóspedes.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛋️</div><div class="highlight-text"><h3>Áreas compartilhadas</h3><p>Espaços compartilhados, com área para circulação e convivência.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛏️</div><div class="highlight-text"><h3>Quarto compartilhado</h3><p>Dormitórios coletivos, confortáveis e seguros, ideais para quem busca economia e convivência.</p></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="about-space">
+            <h3>🏡 Sobre este Quarto</h3>
+            <p class="about-preview">Hospede-se a poucos minutos de caminhada da icônica Praia de Copacabana e esteja conectado a praticamente qualquer ponto turístico do Rio em até 30 minutos. Aqui, localização não é detalhe — é estratégia...</p>
+            <button class="show-more-btn" data-modal="modal1" aria-haspopup="dialog">Mostrar mais</button>
+          </div>
+
+          <div class="cta-btn-wrapper"></div>
+        </div>
+      </div>
+
+      <!-- POUSADA 2 (Nice Place) -->
+      <div class="house-card">
+        <div class="house-name">Nice Place</div>
+
+        <div class="carousel" id="carousel2" onclick="openLightbox(2)">
+          <div class="carousel-slides" id="slides2">
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/OddkKoI.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/W9koWkI.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/yEaKK3Q.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/HUd2mEN.jpeg');"></div>
+          </div>
+          <button class="carousel-btn prev" onclick="event.stopPropagation(); moveSlide(2, -1)">‹</button>
+          <button class="carousel-btn next" onclick="event.stopPropagation(); moveSlide(2, 1)">›</button>
+          <div class="carousel-indicators" id="indicators2"></div>
+        </div>
+
+        <div class="house-info">
+          <p class="house-location">Quarto em Rio de Janeiro, Brasil</p>
+          <p class="house-specs">14 camas · 2 banheiros compartilhados</p>
+
+          <div class="divider"></div>
+
+          <div class="highlights">
+            <div class="highlight-item"><div class="highlight-icon">🚿</div><div class="highlight-text"><h3>Banheiro compartilhado</h3><p>Banheiro de uso coletivo, sempre limpo e organizado, disponível para todos os hóspedes.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛋️</div><div class="highlight-text"><h3>Áreas compartilhadas</h3><p>Espaços compartilhados, com área para circulação e convivência.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛏️</div><div class="highlight-text"><h3>Quarto compartilhado</h3><p>Dormitórios coletivos, confortáveis e seguros, ideais para quem busca economia e convivência.</p></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="about-space">
+            <h3>🏡 Sobre este espaço</h3>
+            <p class="about-preview">Simplicidade, conforto e localização estratégica definem esta hospedagem pensada para quem quer relaxar e aproveitar a cidade com tranquilidade. Um espaço acolhedor, funcional e bem equipado para você se sentir em casa desde o primeiro momento...</p>
+            <button class="show-more-btn" data-modal="modal2" aria-haspopup="dialog">Mostrar mais</button>
+          </div>
+
+          <div class="cta-btn-wrapper"></div>
+        </div>
+      </div>
+
+      <!-- Duplicated Quarto Feminino FreiSa (extra 1) -->
+      <div class="house-card">
+        <div class="house-name">Quarto Feminino FreiSa</div>
+
+        <div class="carousel" id="carousel3" onclick="openLightbox(3)">
+          <div class="carousel-slides" id="slides3">
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/5RmzKKS.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/32uJWkj.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Pyt9BLd.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/QoRrocG.jpeg');"></div>
+          </div>
+          <button class="carousel-btn prev" onclick="event.stopPropagation(); moveSlide(3, -1)">‹</button>
+          <button class="carousel-btn next" onclick="event.stopPropagation(); moveSlide(3, 1)">›</button>
+          <div class="carousel-indicators" id="indicators3"></div>
+        </div>
+
+        <div class="house-info">
+          <p class="house-location">Quarto em Rio de Janeiro, Brasil</p>
+          <p class="house-specs">14 camas · 4 banheiros compartilhados</p>
+
+          <div class="divider"></div>
+
+          <div class="highlights">
+            <div class="highlight-item"><div class="highlight-icon">🚿</div><div class="highlight-text"><h3>Banheiro compartilhado</h3><p>Banheiro de uso coletivo, sempre limpo e organizado, disponível para todos os hóspedes.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛋️</div><div class="highlight-text"><h3>Áreas compartilhadas</h3><p>Espaços compartilhados, com área para circulação e convivência.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛏️</div><div class="highlight-text"><h3>Quarto compartilhado</h3><p>Dormitórios coletivos, confortáveis e seguros, ideais para quem busca economia e convivência.</p></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="about-space">
+            <h3>🏡 Sobre este Quarto</h3>
+            <p class="about-preview">Hospede-se a poucos minutos de caminhada da icônica Praia de Copacabana e esteja conectado a praticamente qualquer ponto turístico do Rio em até 30 minutos. Aqui, localização não é detalhe — é estratégia...</p>
+            <button class="show-more-btn" data-modal="modal1" aria-haspopup="dialog">Mostrar mais</button>
+          </div>
+
+          <div class="cta-btn-wrapper"></div>
+        </div>
+      </div>
+
+      <!-- Duplicated Quarto Feminino FreiSa (extra 2) -->
+      <div class="house-card">
+        <div class="house-name">Quarto Feminino FreiSa</div>
+
+        <div class="carousel" id="carousel4" onclick="openLightbox(4)">
+          <div class="carousel-slides" id="slides4">
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/5RmzKKS.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/32uJWkj.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Pyt9BLd.jpeg');"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.imgur.com/QoRrocG.jpeg');"></div>
+          </div>
+          <button class="carousel-btn prev" onclick="event.stopPropagation(); moveSlide(4, -1)">‹</button>
+          <button class="carousel-btn next" onclick="event.stopPropagation(); moveSlide(4, 1)">›</button>
+          <div class="carousel-indicators" id="indicators4"></div>
+        </div>
+
+        <div class="house-info">
+          <p class="house-location">Quarto em Rio de Janeiro, Brasil</p>
+          <p class="house-specs">14 camas · 4 banheiros compartilhados</p>
+
+          <div class="divider"></div>
+
+          <div class="highlights">
+            <div class="highlight-item"><div class="highlight-icon">🚿</div><div class="highlight-text"><h3>Banheiro compartilhado</h3><p>Banheiro de uso coletivo, sempre limpo e organizado, disponível para todos os hóspedes.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛋️</div><div class="highlight-text"><h3>Áreas compartilhadas</h3><p>Espaços compartilhados, com área para circulação e convivência.</p></div></div>
+            <div class="highlight-item"><div class="highlight-icon">🛏️</div><div class="highlight-text"><h3>Quarto compartilhado</h3><p>Dormitórios coletivos, confortáveis e seguros, ideais para quem busca economia e convivência.</p></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="about-space">
+            <h3>🏡 Sobre este Quarto</h3>
+            <p class="about-preview">Hospede-se a poucos minutos de caminhada da icônica Praia de Copacabana e esteja conectado a praticamente qualquer ponto turístico do Rio em até 30 minutos. Aqui, localização não é detalhe — é estratégia...</p>
+            <button class="show-more-btn" data-modal="modal1" aria-haspopup="dialog">Mostrar mais</button>
+          </div>
+
+          <div class="cta-btn-wrapper"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BENEFÍCIOS -->
+  <section class="benefits-section">
+    <div class="container">
+      <h2 class="section-title">Por Que Escolher o FreiSa Hostel?</h2>
+      <p class="section-subtitle">Cada detalhe foi pensado para proporcionar uma experiência única e memorável</p>
+
+      <div class="benefits-grid">
+        <div class="benefit-card"><div class="benefit-icon">📍</div><h3>Localização estratégica em Copacabana</h3><p>A poucos minutos a pé da Praia de Copacabana e com fácil acesso aos principais pontos turísticos do Rio em até 30 minutos</p></div>
+        <div class="benefit-card"><div class="benefit-icon">💰</div><h3>Excelente custo-benefício</h3><p>Hospedagem acessível com estrutura completa: ar-condicionado, Wi-Fi, TV e lockers individuais — conforto sem pesar no bolso</p></div>
+        <div class="benefit-card"><div class="benefit-icon">🔒</div><h3>Conforto e segurança para sua estadia</h3><p>Quartos equipados com lockers individuais com chave, ambiente organizado e itens básicos de segurança para você se hospedar com tranquilidade</p></div>
+        <div class="benefit-card"><div class="benefit-icon">🤝</div><h3>Ambiente social e acolhedor</h3><p>Espaços compartilhados que facilitam a interação entre viajantes, trocas culturais e novas amizades</p></div>
+        <div class="benefit-card"><div class="benefit-icon">🍳</div><h3>Estrutura prática para o viajante</h3><p>Cozinha compartilhada disponível para preparar suas próprias refeições e economizar durante a estadia</p></div>
+        <div class="benefit-card"><div class="benefit-icon">🌳</div><h3>Experiência carioca autêntica</h3><p>Imersão no clima do Rio, cercado por bares, restaurantes e a energia única de Copacabana</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFERÊNCIAS / DEPOIMENTOS -->
+  <section id="referencias" class="testimonials-section" aria-labelledby="referenciasTitle">
+    <div class="testimonials-container">
+      <h2 id="referenciasTitle" class="section-title">Referências</h2>
+      <p class="section-subtitle">Depoimentos genuínos de hóspedes — versão editada e anonimizadas. Texto levemente editado para clareza.</p>
+
+      <div class="testimonials-grid" role="list">
+        <article class="testimonial-card" role="listitem">
+          <div class="testimonial-quote">Fiquei 4 noites em Copacabana. Localização excelente — mercados, padarias e bares na mesma rua; a apenas 2 minutos da praia. Cozinha completa e bem equipada; chuveiro com ótima pressão; quarto confortável e ventilador silencioso. Ambiente limpo e equipe muito atenciosa — entrou na minha lista de favoritos!</div>
+          <div class="testimonial-meta">
+            <div class="testimonial-avatar">H</div>
+            <div class="testimonial-who"><div class="name">Hóspede</div><div class="role">Copacabana — Texto levemente editado</div></div>
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+          </div>
+        </article>
+        <article class="testimonial-card" role="listitem">
+          <div class="testimonial-quote">Minha hospedagem foi super tranquila. A um quarteirão da praia e perto do SESC Copacabana. O chuveiro é maravilhoso; os espaços de convivência são amplos; os anfitriões bastante atenciosos. Experiência muito positiva — pretendo retornar em breve.</div>
+          <div class="testimonial-meta">
+            <div class="testimonial-avatar">L</div>
+            <div class="testimonial-who"><div class="name">Hóspede</div><div class="role">Rio de Janeiro — Texto levemente editado</div></div>
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+          </div>
+        </article>
+        <article class="testimonial-card" role="listitem">
+          <div class="testimonial-quote">Localização excelente; o proprietário estava disponível sempre que precisei. Lugar arrumado e muito limpo. Vale super a pena — já favoritei para voltar mais vezes.</div>
+          <div class="testimonial-meta">
+            <div class="testimonial-avatar">D</div>
+            <div class="testimonial-who"><div class="name">Hóspede</div><div class="role">Visitante — Texto levemente editado</div></div>
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+          </div>
+        </article>
+      </div>
+
+      <p class="testimonal-note">Todas as referências acima foram editadas para clareza e anonimizadas para preservar a privacidade dos hóspedes.</p>
+    </div>
+  </section>
+
+  <!-- CTA / RESERVA (com quartos originais + Quarto misto + suites) -->
+<section class="cta-section" id="contato">
+  <div class="container">
+    <!-- Nice Place (jb) -->
+    <div class="reserve-card">
+      <h3 class="reserva-card-titulo">
+        Nice Place<br>
+        <span class="reserva-card-chamada">Verificar disponibilidade</span>
+      </h3>
+      <div class="reserve-row">
+        <label class="reserva-label" for="checkin-jb">
+          CHECK-IN
+          <input type="text" id="checkin-jb" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+        <label class="reserva-label" for="checkout-jb">
+          CHECKOUT
+          <input type="text" id="checkout-jb" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+      </div>
+
+      <div class="check-times" role="status" aria-live="polite">
+        Check-in às <strong>14:00</strong> • Check-out até <strong>12:00</strong>
+      </div>
+
+      <div class="reserve-row">
+        <label class="reserva-label" for="guests-jb">
+          HÓSPEDES
+          <select id="guests-jb" class="reserva-input">
+            <option value="1">1 hóspede</option>
+            <option value="2">2 hóspedes</option>
+            <option value="3">3 hóspedes</option>
+            <option value="4">4 hóspedes</option>
+            <option value="5">5 hóspedes</option>
+            <option value="6">6 hóspedes</option>
+            <option value="7">7 hóspedes</option>
+            <option value="8">8 hóspedes</option>
+            <option value="9">9 hóspedes</option>
+            <option value="10">10 hóspedes</option>
+            <option value="11">11 hóspedes</option>
+            <option value="12">12 hóspedes</option>
+            <option value="13">13 hóspedes</option>
+            <option value="14">14 hóspedes</option>
+          </select>
+        </label>
+
+        <label class="reserva-label" for="beds-jb" style="margin-top:6px;">
+          CAMAS
+          <div style="display:flex;gap:10px;align-items:center;margin-top:7px;">
+            <button type="button" class="beds-trigger" id="beds-trigger-jb" onclick="openBedsModal('jb')">
+              Selecionar camas
+              <span id="beds-count-jb" class="beds-count">0 selecionadas</span>
+            </button>
+          </div>
+        </label>
+      </div>
+      <div class="extra-options">
+        <div class="extra-option">
+          <label class="option-label" for="early-checkin-jb">
+            <span class="option-text">Check-in antecipado</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="early-checkin-jb">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="extra-option">
+          <label class="option-label" for="late-checkout-jb">
+            <span class="option-text">Check-out estendido</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="late-checkout-jb">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="transfer-options" aria-live="polite">
+        <div class="transfer-note">Modalidade de transfer — vá e volte com segurança. Selecione o(s) serviço(s) desejados (R$ 150,00 cada).</div>
+        <div class="transfer-buttons">
+          <button type="button" class="transfer-btn transfer-hostel" id="transfer-hostel-jb" data-price="150" aria-pressed="false">
+            Transfer ida ao hostel <span class="transfer-badge">R$ 150,00</span>
+          </button>
+          <button type="button" class="transfer-btn transfer-airport" id="transfer-airport-jb" data-price="150" aria-pressed="false">
+            Transfer volta para aeroporto <span class="transfer-badge">R$ 150,00</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="price-summary" id="price-summary-jb">
+        <div class="price-row">
+          <span>Valor base da hospedagem</span>
+          <span id="base-price-jb">R$ 0,00</span>
+        </div>
+        <div class="price-row" id="extras-row-jb" style="display: none;">
+          <span>Opções extras</span>
+          <span id="extras-price-jb">R$ 0,00</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="total-price-jb">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="reserve-actions">
+        <button id="checkAvailabilityBtn-jb" type="button" aria-disabled="true">Conferir disponibilidade</button>
+      </div>
+      <div class="reserve-error" id="reserveError-jb"></div>
+      <p class="reserva-secundario">Após conferir disponibilidade, você poderá enviar a solicitação pelo WhatsApp mencionando o Nice Place.</p>
+    </div>
+
+    <!-- Quarto Feminino FreiSa (ar) -->
+    <div class="reserve-card">
+      <h3 class="reserva-card-titulo">
+        Quarto Feminino FreiSa<br>
+        <span class="reserva-card-chamada">Verificar disponibilidade</span>
+      </h3>
+      <div class="reserve-row">
+        <label class="reserva-label" for="checkin-ar">
+          CHECK-IN
+          <input type="text" id="checkin-ar" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+        <label class="reserva-label" for="checkout-ar">
+          CHECKOUT
+          <input type="text" id="checkout-ar" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+      </div>
+
+      <div class="check-times" role="status" aria-live="polite">
+        Check-in às <strong>14:00</strong> • Check-out até <strong>12:00</strong>
+      </div>
+
+      <div class="reserve-row">
+        <label class="reserva-label" for="guests-ar">
+          HÓSPEDES
+          <select id="guests-ar" class="reserva-input">
+            <option value="1">1 hóspede</option>
+            <option value="2">2 hóspedes</option>
+            <option value="3">3 hóspedes</option>
+            <option value="4">4 hóspedes</option>
+            <option value="5">5 hóspedes</option>
+            <option value="6">6 hóspedes</option>
+            <option value="7">7 hóspedes</option>
+            <option value="8">8 hóspedes</option>
+            <option value="9">9 hóspedes</option>
+            <option value="10">10 hóspedes</option>
+            <option value="11">11 hóspedes</option>
+            <option value="12">12 hóspedes</option>
+            <option value="13">13 hóspedes</option>
+            <option value="14">14 hóspedes</option>
+          </select>
+        </label>
+
+        <label class="reserva-label" for="beds-ar" style="margin-top:6px;">
+          CAMAS
+          <div style="display:flex;gap:10px;align-items:center;margin-top:7px;">
+            <button type="button" class="beds-trigger" id="beds-trigger-ar" onclick="openBedsModal('ar')">
+              Selecionar camas
+              <span id="beds-count-ar" class="beds-count">0 selecionadas</span>
+            </button>
+          </div>
+        </label>
+      </div>
+      <div class="extra-options">
+        <div class="extra-option">
+          <label class="option-label" for="early-checkin-ar">
+            <span class="option-text">Check-in antecipado</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="early-checkin-ar">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="extra-option">
+          <label class="option-label" for="late-checkout-ar">
+            <span class="option-text">Check-out estendido</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="late-checkout-ar">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="transfer-options" aria-live="polite">
+        <div class="transfer-note">Modalidade de transfer — vá e volte com segurança. Selecione o(s) serviço(s) desejados (R$ 150,00 cada).</div>
+        <div class="transfer-buttons">
+          <button type="button" class="transfer-btn transfer-hostel" id="transfer-hostel-ar" data-price="150" aria-pressed="false">
+            Transfer ida ao hostel <span class="transfer-badge">R$ 150,00</span>
+          </button>
+          <button type="button" class="transfer-btn transfer-airport" id="transfer-airport-ar" data-price="150" aria-pressed="false">
+            Transfer volta para aeroporto <span class="transfer-badge">R$ 150,00</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="price-summary" id="price-summary-ar">
+        <div class="price-row">
+          <span>Valor base da hospedagem</span>
+          <span id="base-price-ar">R$ 0,00</span>
+        </div>
+        <div class="price-row" id="extras-row-ar" style="display: none;">
+          <span>Opções extras</span>
+          <span id="extras-price-ar">R$ 0,00</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="total-price-ar">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="reserve-actions">
+        <button id="checkAvailabilityBtn-ar" type="button" aria-disabled="true">Conferir disponibilidade</button>
+      </div>
+      <div class="reserve-error" id="reserveError-ar"></div>
+      <p class="reserva-secundario">Após conferir disponibilidade, você poderá enviar a solicitação pelo WhatsApp mencionando o Quarto Feminino FreiSa.</p>
+    </div>
+
+    <!-- Quarto misto -->
+    <div class="reserve-card">
+      <h3 class="reserva-card-titulo">
+        Quarto misto<br>
+        <span class="reserva-card-chamada">Verificar disponibilidade</span>
+      </h3>
+      <div class="reserve-row">
+        <label class="reserva-label" for="checkin-q007">
+          CHECK-IN
+          <input type="text" id="checkin-q007" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+        <label class="reserva-label" for="checkout-q007">
+          CHECKOUT
+          <input type="text" id="checkout-q007" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+      </div>
+
+      <div class="check-times" role="status" aria-live="polite">
+        Check-in às <strong>14:00</strong> • Check-out até <strong>12:00</strong>
+      </div>
+
+      <div class="reserve-row">
+        <label class="reserva-label" for="guests-q007">
+          HÓSPEDES
+          <select id="guests-q007" class="reserva-input">
+            <option value="1">1 hóspede</option>
+            <option value="2">2 hóspedes</option>
+            <option value="3">3 hóspedes</option>
+            <option value="4">4 hóspedes</option>
+            <option value="5">5 hóspedes</option>
+            <option value="6">6 hóspedes</option>
+            <option value="7">7 hóspedes</option>
+            <option value="8">8 hóspedes</option>
+            <option value="9">9 hóspedes</option>
+            <option value="10">10 hóspedes</option>
+            <option value="11">11 hóspedes</option>
+            <option value="12">12 hóspedes</option>
+            <option value="13">13 hóspedes</option>
+            <option value="14">14 hóspedes</option>
+          </select>
+        </label>
+
+        <label class="reserva-label" for="beds-q007" style="margin-top:6px;">
+          CAMAS
+          <div style="display:flex;gap:10px;align-items:center;margin-top:7px;">
+            <button type="button" class="beds-trigger" id="beds-trigger-q007" onclick="openBedsModal('q007')">
+              Selecionar camas
+              <span id="beds-count-q007" class="beds-count">0 selecionadas</span>
+            </button>
+          </div>
+        </label>
+      </div>
+
+      <div class="extra-options">
+        <div class="extra-option">
+          <label class="option-label" for="early-checkin-q007">
+            <span class="option-text">Check-in antecipado</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="early-checkin-q007">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="extra-option">
+          <label class="option-label" for="late-checkout-q007">
+            <span class="option-text">Check-out estendido</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="late-checkout-q007">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="transfer-options" aria-live="polite">
+        <div class="transfer-note">Modalidade de transfer — vá e volte com segurança. Selecione o(s) serviço(s) desejados (R$ 150,00 cada).</div>
+        <div class="transfer-buttons">
+          <button type="button" class="transfer-btn transfer-hostel" id="transfer-hostel-q007" data-price="150" aria-pressed="false">
+            Transfer ida ao hostel <span class="transfer-badge">R$ 150,00</span>
+          </button>
+          <button type="button" class="transfer-btn transfer-airport" id="transfer-airport-q007" data-price="150" aria-pressed="false">
+            Transfer volta para aeroporto <span class="transfer-badge">R$ 150,00</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="price-summary" id="price-summary-q007">
+        <div class="price-row">
+          <span>Valor base da hospedagem</span>
+          <span id="base-price-q007">R$ 0,00</span>
+        </div>
+        <div class="price-row" id="extras-row-q007" style="display: none;">
+          <span>Opções extras</span>
+          <span id="extras-price-q007">R$ 0,00</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="total-price-q007">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="reserve-actions">
+        <button id="checkAvailabilityBtn-q007" type="button" aria-disabled="true">Conferir disponibilidade</button>
+      </div>
+      <div class="reserve-error" id="reserveError-q007"></div>
+      <p class="reserva-secundario">Após conferir disponibilidade, você poderá enviar a solicitação pelo WhatsApp mencionando o Quarto misto.</p>
+    </div>
+
+    <!-- suites (3 suites selector) -->
+    <div class="reserve-card">
+      <h3 class="reserva-card-titulo">
+        suites<br>
+        <span class="reserva-card-chamada">Verificar disponibilidade</span>
+      </h3>
+      <div class="reserve-row">
+        <label class="reserva-label" for="checkin-q777">
+          CHECK-IN
+          <input type="text" id="checkin-q777" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+        <label class="reserva-label" for="checkout-q777">
+          CHECKOUT
+          <input type="text" id="checkout-q777" class="reserva-input" readonly placeholder="Selecione a data" />
+        </label>
+      </div>
+
+      <div class="check-times" role="status" aria-live="polite">
+        Check-in às <strong>14:00</strong> • Check-out até <strong>12:00</strong>
+      </div>
+
+      <div class="reserve-row">
+        <label class="reserva-label" for="guests-q777">
+          HÓSPEDES
+          <select id="guests-q777" class="reserva-input">
+            <option value="1">1 hóspede</option>
+            <option value="2">2 hóspedes</option>
+            <option value="3">3 hóspedes</option>
+            <option value="4">4 hóspedes</option>
+            <option value="5">5 hóspedes</option>
+            <option value="6">6 hóspedes</option>
+            <option value="7">7 hóspedes</option>
+            <option value="8">8 hóspedes</option>
+            <option value="9">9 hóspedes</option>
+            <option value="10">10 hóspedes</option>
+            <option value="11">11 hóspedes</option>
+            <option value="12">12 hóspedes</option>
+            <option value="13">13 hóspedes</option>
+            <option value="14">14 hóspedes</option>
+          </select>
+        </label>
+
+        <label class="reserva-label" for="suites-q777" style="margin-top:6px;">
+          SUITES
+          <div style="display:flex;gap:10px;align-items:center;margin-top:7px;">
+            <button type="button" class="beds-trigger" id="suites-trigger-q777" onclick="openSuitesModal('q777')">
+              Selecionar suítes
+              <span id="suites-count-q777" class="beds-count">0 selecionadas</span>
+            </button>
+          </div>
+        </label>
+      </div>
+
+      <div class="extra-options">
+        <div class="extra-option">
+          <label class="option-label" for="early-checkin-q777">
+            <span class="option-text">Check-in antecipado</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="early-checkin-q777">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="extra-option">
+          <label class="option-label" for="late-checkout-q777">
+            <span class="option-text">Check-out estendido</span>
+            <span class="option-price">+ R$ 30,00</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="late-checkout-q777">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="transfer-options" aria-live="polite">
+        <div class="transfer-note">Modalidade de transfer — vá e volte com segurança. Selecione o(s) serviço(s) desejados (R$ 150,00 cada).</div>
+        <div class="transfer-buttons">
+          <button type="button" class="transfer-btn transfer-hostel" id="transfer-hostel-q777" data-price="150" aria-pressed="false">
+            Transfer ida ao hostel <span class="transfer-badge">R$ 150,00</span>
+          </button>
+          <button type="button" class="transfer-btn transfer-airport" id="transfer-airport-q777" data-price="150" aria-pressed="false">
+            Transfer volta para aeroporto <span class="transfer-badge">R$ 150,00</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="price-summary" id="price-summary-q777">
+        <div class="price-row">
+          <span>Valor base da hospedagem</span>
+          <span id="base-price-q777">R$ 0,00</span>
+        </div>
+        <div class="price-row" id="extras-row-q777" style="display: none;">
+          <span>Opções extras</span>
+          <span id="extras-price-q777">R$ 0,00</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="total-price-q777">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="reserve-actions">
+        <button id="checkAvailabilityBtn-q777" type="button" aria-disabled="true">Conferir disponibilidade</button>
+      </div>
+      <div class="reserve-error" id="reserveError-q777"></div>
+      <p class="reserva-secundario">Após conferir disponibilidade, você poderá enviar a solicitação pelo WhatsApp mencionando as suítes.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Modal Calendário -->
+<div id="customCalendarModal" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="calendarTitle">
+    <button class="modal-close" onclick="closeCustomCalendar()" aria-label="Fechar">×</button>
+    <div style="padding-bottom: 12px;">
+      <div id="calendarTitle" style="font-size: 1.23rem; font-weight: 600; margin-bottom: 8px; color: #ba1818;">Selecione a data</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <button id="calendarPrevMonth" style="background: none; border: none; color: #ba1818; font-size: 2rem; cursor: pointer;">‹</button>
+        <div id="calendarMonthText" style="font-size: 1.14rem; font-weight: 500; color: #ba1818;"></div>
+        <button id="calendarNextMonth" style="background: none; border: none; color: #ba1818; font-size: 2rem; cursor: pointer;">›</button>
+      </div>
+    </div>
+    <div id="calendarGrid" aria-live="polite"></div>
+    <div style="font-size: 0.81rem; color: #fa6866; text-align: center; margin-top: 16px;">
+      Dias reservados não podem ser selecionados.
+    </div>
+  </div>
+</div>
+
+<!-- Beds Modal (original unchanged) -->
+<div id="bedsModal" class="modal beds-modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="bedsTitle">
+    <button class="modal-close" onclick="closeBedsModal()" aria-label="Fechar">×</button>
+    <h3 id="bedsTitle" style="color:#0f172a; margin-bottom:8px;">Mapa de camas — selecione sua(s) cama(s)</h3>
+    <p style="color:#555; margin-bottom:12px;">Clique na cama superior (Top) ou inferior (Bottom). O mapa mostra 7 beliches (cada coluna) com camas superior e inferior — total 14 camas.</p>
+
+    <div class="beds-visual">
+      <div>
+        <div style="text-align:center; font-weight:700; color:#444; margin-bottom:8px;">Superior</div>
+        <div class="beds-grid" id="bedsGridTop" aria-hidden="false"></div>
+      </div>
+      <div>
+        <div style="text-align:center; font-weight:700; color:#444; margin-bottom:8px;">Inferior</div>
+        <div class="beds-grid" id="bedsGridBottom" aria-hidden="false"></div>
+      </div>
+    </div>
+
+    <div class="beds-legend">
+      <div class="legend-item"><div class="legend-swatch sw-available"></div> Disponível</div>
+      <div class="legend-item"><div class="legend-swatch sw-selected"></div> Selecionada</div>
+      <div class="legend-item"><div class="legend-swatch sw-reserved"></div> Reservada</div>
+    </div>
+
+    <div class="beds-info" id="bedsInfo">Selecione até o número de hóspedes escolhido.</div>
+
+    <div class="beds-actions">
+      <button class="btn btn-white" onclick="clearBedsSelection()">Limpar</button>
+      <button class="btn" onclick="confirmBedsSelection()">Confirmar seleção</button>
+    </div>
+  </div>
+</div>
+
+<!-- Suites Modal (separate, non-intrusive) -->
+<div id="suitesModal" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="suitesTitle">
+    <button class="modal-close" onclick="closeSuitesModal()" aria-label="Fechar">×</button>
+    <h3 id="suitesTitle" style="color:#0f172a; margin-bottom:8px;">Selecione sua(s) suíte(s)</h3>
+    <p style="color:#555; margin-bottom:12px;">São 3 suítes disponíveis. Valor por suíte: <strong>R$ 300,00</strong> por diária.</p>
+
+    <div class="suites-grid" id="suitesGrid"></div>
+
+    <div class="suites-legend">
+      <div class="legend-item"><div class="legend-swatch sw-suite-available"></div> Disponível</div>
+      <div class="legend-item"><div class="legend-swatch sw-suite-selected"></div> Selecionada</div>
+    </div>
+
+    <div class="beds-info" id="suitesInfo">Selecione até 3 suítes.</div>
+
+    <div class="beds-actions">
+      <button class="btn btn-white" onclick="clearSuitesSelection()">Limpar</button>
+      <button class="btn" onclick="confirmSuitesSelection()">Confirmar seleção</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightboxes -->
+<div id="lightbox1" class="lightbox" onclick="closeLightbox(1)">
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox(1)">×</button>
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-btn prev" onclick="moveLightboxSlide(1, -1)">‹</button>
+    <img id="lightbox-image1" class="lightbox-image" src="" alt="Imagem em tela cheia" />
+    <button class="lightbox-btn next" onclick="moveLightboxSlide(1, 1)">›</button>
+  </div>
+</div>
+
+<div id="lightbox2" class="lightbox" onclick="closeLightbox(2)">
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox(2)">×</button>
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-btn prev" onclick="moveLightboxSlide(2, -1)">‹</button>
+    <img id="lightbox-image2" class="lightbox-image" src="" alt="Imagem em tela cheia" />
+    <button class="lightbox-btn next" onclick="moveLightboxSlide(2, 1)">›</button>
+  </div>
+</div>
+
+<div id="lightbox3" class="lightbox" onclick="closeLightbox(3)">
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox(3)">×</button>
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-btn prev" onclick="moveLightboxSlide(3, -1)">‹</button>
+    <img id="lightbox-image3" class="lightbox-image" src="" alt="Imagem em tela cheia" />
+    <button class="lightbox-btn next" onclick="moveLightboxSlide(3, 1)">›</button>
+  </div>
+</div>
+
+<div id="lightbox4" class="lightbox" onclick="closeLightbox(4)">
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox(4)">×</button>
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-btn prev" onclick="moveLightboxSlide(4, -1)">‹</button>
+    <img id="lightbox-image4" class="lightbox-image" src="" alt="Imagem em tela cheia" />
+    <button class="lightbox-btn next" onclick="moveLightboxSlide(4, 1)">›</button>
+  </div>
+</div>
+
+<!-- Modais de descrição -->
+<div id="modal1" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal1Title">
+    <button class="modal-close" onclick="closeModal('modal1')" aria-label="Fechar">×</button>
+    <div class="modal-text" id="modal1Title">
+      <h3>Quarto Feminino FreiSa — Detalhes</h3>
+      <p>Hospede-se a poucos minutos de caminhada da icônica Praia de Copacabana...</p>
+    </div>
+  </div>
+</div>
+
+<div id="modal2" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal2Title">
+    <button class="modal-close" onclick="closeModal('modal2')" aria-label="Fechar">×</button>
+    <div class="modal-text" id="modal2Title">
+      <h3>Nice Place — Detalhes</h3>
+      <p>...detalhes do Nice Place...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------------
+   Rates/calendar/booking
+   ------------------------ */
+const ICALS = {
+  "jb": "https://www.airbnb.com/calendar/ical/1235001714309661444.ics?s=632c33b556f673f68d16af6e7f24566a&locale=pt",
+  "ar": "https://www.airbnb.com/calendar/ical/36101836.ics?s=00f471f576fe2ec677c93bb55d6ef405&locale=pt"
+};
+const CORS_PROXY = 'https://corsproxy.io/?';
+const EXTRA_OPTION_PRICE = 30;
+const TRANSFER_PRICE = 150;
+const DEFAULT_RATES = { jb: 100, ar: 120 };
+const PEAK_RATE = 350;
+const PEAK_YEARS = [2026,2027,2028,2029,2030];
+const PEAK_MONTHS_ZERO_INDEXED = [1,8,11];
+const WHATSAPP_NUMBER = "5521997305179";
+const SUITE_PRICE = 300; // R$300 por diária por suíte
+
+const reservationState = {
+  jb: { checkin:'', checkout:'', guests:1, earlyCheckin:false, lateCheckout:false, transferToHostel:false, transferToAirport:false, selectedBeds: [] },
+  ar: { checkin:'', checkout:'', guests:1, earlyCheckin:false, lateCheckout:false, transferToHostel:false, transferToAirport:false, selectedBeds: [] },
+  q007: { checkin:'', checkout:'', guests:1, earlyCheckin:false, lateCheckout:false, transferToHostel:false, transferToAirport:false, selectedBeds: [] },
+  // q777 uses suites instead of beds
+  q777: { checkin:'', checkout:'', guests:1, earlyCheckin:false, lateCheckout:false, transferToHostel:false, transferToAirport:false, selectedSuites: [] }
+};
+
+const monthNamesPt = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function formatISOdate(d){
+  let yyyy=d.getFullYear(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+function formatBRdate(iso){
+  if(!iso) return "";
+  const [y,m,d]=iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function formatCurrency(v){
+  return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+}
+function calculateNights(ciIso, coIso){
+  if(!ciIso||!coIso) return 0;
+  const ci=new Date(ciIso+'T00:00:00'), co=new Date(coIso+'T00:00:00');
+  const diff=(co-ci)/(1000*60*60*24);
+  return diff>0?Math.ceil(diff):0;
+}
+function isPeakDate(d){
+  return PEAK_YEARS.includes(d.getFullYear()) && PEAK_MONTHS_ZERO_INDEXED.includes(d.getMonth());
+}
+function getDailyRate(casaId, dateObj){
+  if(isPeakDate(dateObj)) return PEAK_RATE;
+  return DEFAULT_RATES[casaId]||DEFAULT_RATES['jb']||0;
+}
+
+/* calculatePrices:
+   - for normal rooms: sum per-night per-guest
+   - for q777 (suites): R$300 * numberSelectedSuites * nights
+*/
+function calculatePrices(casaId){
+  const st = reservationState[casaId];
+  let basePrice=0, extrasPrice=0;
+  if(!st.checkin||!st.checkout) return { basePrice:0, extrasPrice:0, totalPrice:0 };
+  const ci=new Date(st.checkin+'T00:00:00'), co=new Date(st.checkout+'T00:00:00');
+  if(co<=ci) return { basePrice:0, extrasPrice:0, totalPrice:0 };
+  const nights = calculateNights(st.checkin, st.checkout);
+
+  if(casaId === 'q777'){
+    const suitesCount = (st.selectedSuites && st.selectedSuites.length) || 0;
+    basePrice = SUITE_PRICE * suitesCount * nights;
+  } else {
+    for(let d=new Date(ci); d<co; d.setDate(d.getDate()+1)){
+      const cur=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      basePrice += getDailyRate(casaId, cur);
+    }
+    const guests = reservationState[casaId].guests || 1;
+    basePrice = basePrice * guests;
+  }
+
+  if(st.earlyCheckin) extrasPrice += EXTRA_OPTION_PRICE;
+  if(st.lateCheckout) extrasPrice += EXTRA_OPTION_PRICE;
+  if(st.transferToHostel) extrasPrice += TRANSFER_PRICE;
+  if(st.transferToAirport) extrasPrice += TRANSFER_PRICE;
+  return { basePrice, extrasPrice, totalPrice: basePrice+extrasPrice };
+}
+
+function updatePriceSummary(casaId){
+  const { basePrice, extrasPrice, totalPrice } = calculatePrices(casaId);
+  const baseEl = document.getElementById(`base-price-${casaId}`);
+  const totalEl = document.getElementById(`total-price-${casaId}`);
+  if(baseEl) baseEl.textContent = formatCurrency(basePrice);
+  if(totalEl) totalEl.textContent = formatCurrency(totalPrice);
+  const extrasRow = document.getElementById(`extras-row-${casaId}`);
+  if(extrasRow){
+    if(extrasPrice>0){ extrasRow.style.display='flex'; document.getElementById(`extras-price-${casaId}`).textContent = formatCurrency(extrasPrice); }
+    else extrasRow.style.display='none';
+  }
+
+  // update counts
+  if(casaId === 'q777'){
+    const cntEl = document.getElementById(`suites-count-${casaId}`);
+    if(cntEl) cntEl.textContent = `${reservationState[casaId].selectedSuites.length} selecionadas`;
+  } else {
+    const cntEl = document.getElementById(`beds-count-${casaId}`);
+    if(cntEl) cntEl.textContent = `${reservationState[casaId].selectedBeds ? reservationState[casaId].selectedBeds.length : 0} selecionadas`;
+  }
+
+  updateCheckButtonState(casaId);
+}
+
+/* Calendar code (kept as in previous working version) */
+let calendarContext = null;
+let calendarTargetInput = null;
+let calendarSelectedDate = null;
+let reservedRangesSet = new Set();
+function modalSuffixFromModalId(modalId) {
+  if(!modalId || modalId === 'customCalendarModal') return '';
+  if(modalId.endsWith('-2')) return '-2';
+  if(modalId.endsWith('-3')) return '-3';
+  return '';
+}
+async function fetchCalendarReservations(year, month, casaId) {
+  const url = ICALS[casaId];
+  if(!url) { reservedRangesSet = new Set(); return; }
+  try{
+    const r = await fetch(CORS_PROXY + encodeURIComponent(url));
+    const ics = await r.text();
+    reservedRangesSet = new Set();
+    const events = ics.split('BEGIN:VEVENT');
+    for(let i=1;i<events.length;i++){
+      const ev = events[i];
+      const startMatch = ev.match(/DTSTART[;:].*?:(\d{8})/);
+      const endMatch = ev.match(/DTEND[;:].*?:(\d{8})/);
+      if(startMatch && endMatch){
+        const s=startMatch[1], e=endMatch[1];
+        const sDate = new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T00:00:00`);
+        const eDate = new Date(`${e.slice(0,4)}-${e.slice(4,6)}-${e.slice(6,8)}T00:00:00`);
+        for(let d=new Date(sDate); d<eDate; d.setDate(d.getDate()+1)){
+          reservedRangesSet.add(formatISOdate(d));
+        }
+      }
+    }
+  }catch(err){
+    console.error("Erro ao carregar ics",err);
+    reservedRangesSet = reservedRangesSet || new Set();
+  }
+}
+
+async function openCustomCalendar(targetId, casaId, modalIdOpt){
+  calendarContext = casaId;
+  calendarTargetInput = document.getElementById(targetId);
+  if(!calendarTargetInput) return;
+
+  let modalId = modalIdOpt || calendarTargetInput.dataset.calendarModal || 'customCalendarModal';
+  if(!document.getElementById(modalId)) modalId = 'customCalendarModal';
+
+  const modalEl = document.getElementById(modalId);
+  modalEl.classList.add('active');
+  modalEl.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+
+  let today = new Date();
+  let showYear = today.getFullYear(), showMonth = today.getMonth();
+  if(calendarTargetInput.dataset.isodate){
+    const dt = new Date(calendarTargetInput.dataset.isodate + 'T00:00:00');
+    showYear = dt.getFullYear(); showMonth = dt.getMonth();
+  }
+  calendarSelectedDate = calendarTargetInput.dataset.isodate || '';
+  const suffix = modalSuffixFromModalId(modalId);
+  document.getElementById(`calendarPrevMonth${suffix}`).onclick = function(){
+    showMonth -= 1; if(showMonth<0){ showMonth=11; showYear-=1; } setupCalendar(showYear, showMonth, casaId, modalId);
+  };
+  document.getElementById(`calendarNextMonth${suffix}`).onclick = function(){
+    showMonth += 1; if(showMonth>11){ showMonth=0; showYear+=1; } setupCalendar(showYear, showMonth, casaId, modalId);
+  };
+  await setupCalendar(showYear, showMonth, casaId, modalId);
+}
+
+async function setupCalendar(year, month, casaId, modalId) {
+  modalId = modalId || 'customCalendarModal';
+  const suffix = modalSuffixFromModalId(modalId);
+  const monthTextEl = document.getElementById(`calendarMonthText${suffix}`);
+  const titleEl = document.getElementById(`calendarTitle${suffix}`);
+  const gridEl = document.getElementById(`calendarGrid${suffix}`);
+  if(!monthTextEl || !gridEl || !titleEl) return;
+  monthTextEl.textContent = `${monthNamesPt[month]} ${year}`;
+  const cInId = casaId === 'jb' ? 'checkin-jb' : 'checkin-ar';
+  titleEl.textContent = (calendarTargetInput === document.getElementById(cInId)) ? "Selecione o check-in desejado" : "Selecione o check-out desejado";
+  await fetchCalendarReservations(year, month, casaId);
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const grid = [];
+  for(let i=0;i<firstDay;i++) grid.push({day:null, outside:true});
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj = new Date(year, month, d);
+    const isodate = formatISOdate(dateObj);
+    const reserved = reservedRangesSet.has(isodate);
+    const available = !reserved && dateObj >= new Date(new Date().toDateString());
+    grid.push({ day: d, dateStr: isodate, reserved, available, outside:false, selected: isodate===calendarSelectedDate });
+  }
+  while(grid.length % 7 !== 0) grid.push({day:null, outside:true});
+  const weekNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let html = '';
+  for(const wn of weekNames) html += `<div class="calendar-weekday">${wn}</div>`;
+  for(const cell of grid){
+    if(cell.outside) { html += `<div class="calendar-day outside"></div>`; continue; }
+    let classes = "calendar-day";
+    if(cell.reserved) classes += " reserved";
+    else if(cell.available) classes += " available";
+    if(cell.selected) classes += " selected";
+    if(cell.dateStr === formatISOdate(new Date())) classes += " today";
+    const parts = cell.dateStr.split('-');
+    const dObj = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+    const pricePerGuest = getDailyRate(casaId, dObj);
+    const priceLabel = formatCurrency(pricePerGuest) + ' / hósp.';
+    html += `<div class="${classes}" data-datestr="${cell.dateStr}" tabindex="${cell.available?0:-1}">
+               <div class="calendar-day-num">${cell.day}</div>
+               <div class="calendar-price">${priceLabel}</div>
+             </div>`;
+  }
+  gridEl.innerHTML = html;
+  Array.from(gridEl.querySelectorAll('.calendar-day.available')).forEach(dayEl=>{
+    dayEl.onclick = function(){
+      calendarSelectedDate = this.getAttribute('data-datestr');
+      calendarTargetInput.value = formatBRdate(calendarSelectedDate);
+      calendarTargetInput.dataset.isodate = calendarSelectedDate;
+      const inputId = calendarTargetInput.id;
+      if(inputId.includes('checkin')) reservationState[calendarContext].checkin = calendarSelectedDate;
+      else reservationState[calendarContext].checkout = calendarSelectedDate;
+      updatePriceSummary(calendarContext);
+      closeCustomCalendar(suffix || '');
+    };
+    dayEl.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        this.click();
+      }
+    });
+  });
+  updateCheckButtonState(casaId);
+}
+
+function closeCustomCalendar(suffixOpt){
+  const suffix = suffixOpt === undefined ? '' : (suffixOpt === '' ? '' : (suffixOpt.startsWith('-') ? suffixOpt : (suffixOpt === '2' ? '-2' : (suffixOpt === '3' ? '-3' : ''))));
+  const modalId = suffix ? ('customCalendarModal' + suffix) : 'customCalendarModal';
+  const el = document.getElementById(modalId);
+  if(el) {
+    el.classList.remove('active');
+    el.setAttribute('aria-hidden','true');
+  }
+  document.body.style.overflow = 'auto';
+  calendarContext = null;
+  calendarTargetInput = null;
+}
+
+/* ------------------------
+   Beds (original functions kept exactly as before)
+   ------------------------ */
+const BEDS_COLUMNS = 7; // 7 beliches (columns), top + bottom = 14 beds
+let bedsModalContext = null;
+
+function updateCheckButtonState(casaId){
+  try{
+    const btn = document.getElementById(`checkAvailabilityBtn-${casaId}`);
+    if(!btn) return;
+    const st = reservationState[casaId];
+    // require at least one bed selected before allowing the check (original behavior for bed rooms)
+    // For suites (q777) we'll require selectedSuites separately below when needed.
+    let allow = Array.isArray(st.selectedBeds) && st.selectedBeds.length > 0;
+    // if room is q777 (suites), check suites instead
+    if(casaId === 'q777') allow = Array.isArray(st.selectedSuites) && st.selectedSuites.length > 0;
+    btn.disabled = !allow;
+    btn.setAttribute('aria-disabled', (!allow).toString());
+    if(!allow){
+      btn.title = (casaId === 'q777') ? "Selecione ao menos uma suíte antes de conferir disponibilidade" : "Selecione pelo menos uma cama antes de conferir disponibilidade";
+    } else {
+      btn.title = "";
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function openBedsModal(casaId){
+  bedsModalContext = casaId;
+  document.getElementById('bedsModal').classList.add('active');
+  document.getElementById('bedsModal').setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+  renderBedsGrid(casaId);
+  updateBedsInfo(casaId);
+}
+
+function closeBedsModal(){
+  document.getElementById('bedsModal').classList.remove('active');
+  document.getElementById('bedsModal').setAttribute('aria-hidden','true');
+  document.body.style.overflow = 'auto';
+  bedsModalContext = null;
+}
+
+function buildBedElement(col, pos, casaId){
+  const bedId = `C${col}-${pos}`;
+  const st = reservationState[casaId];
+  const isSelected = st.selectedBeds && st.selectedBeds.includes(bedId);
+  const div = document.createElement('div');
+  div.className = 'bed ' + (pos === 'T' ? 'top' : 'bottom') + (isSelected ? ' selected' : '');
+  div.setAttribute('data-bid', bedId);
+  div.setAttribute('role','button');
+  div.setAttribute('tabindex','0');
+  div.setAttribute('aria-pressed', !!isSelected);
+
+  const fillColor = isSelected ? '#27ae60' : (pos === 'T' ? '#cfe9ff' : '#ffeecf');
+  const gradId = `grad-${bedId}`;
+  const shadowId = `shadow-${bedId}`;
+
+  div.innerHTML = `
+    <div class="label">${col}</div>
+    <div class="pos">${pos === 'T' ? 'Topo' : 'Baixo'}</div>
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+        <defs>
+          <linearGradient id="${gradId}" x1="0" x2="1">
+            <stop offset="0" stop-color="${fillColor}" stop-opacity="1"/>
+            <stop offset="1" stop-color="#9fb0c9" stop-opacity="0.9"/>
+          </linearGradient>
+          <filter id="${shadowId}" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.12"/>
+          </filter>
+        </defs>
+        <rect x="6" y="${pos === 'T' ? 6 : 8}" rx="6" ry="6" width="68" height="20" fill="url(#${gradId})" stroke="#c9d5e6" stroke-width="1" filter="url(#${shadowId})"/>
+        <rect x="10" y="${pos === 'T' ? 8 : 10}" rx="4" width="44" height="12" fill="rgba(255,255,255,0.12)"/>
+        <rect x="60" y="${pos === 'T' ? 11 : 13}" width="6" height="10" rx="1" fill="#7f98b0" opacity="0.95"/>
+        <path d="M8 ${pos === 'T' ? 8 : 10} C20 ${pos === 'T' ? 2 : 4}, 48 ${pos === 'T' ? 2 : 4}, 74 ${pos === 'T' ? 8 : 10} L74 ${pos === 'T' ? 18 : 20} C48 ${pos === 'T' ? 12 : 14}, 20 ${pos === 'T' ? 12 : 14}, 8 ${pos === 'T' ? 18 : 20} Z" fill="rgba(255,255,255,0.03)"/>
+      </svg>
+    </span>
+  `.trim();
+
+  div.addEventListener('click', function(){
+    toggleBedSelection(casaId, bedId);
+  });
+  div.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleBedSelection(casaId, bedId); }
+  });
+  return div;
+}
+
+function renderBedsGrid(casaId){
+  const topContainer = document.getElementById('bedsGridTop');
+  const bottomContainer = document.getElementById('bedsGridBottom');
+  topContainer.innerHTML = '';
+  bottomContainer.innerHTML = '';
+  for(let c=1;c<=BEDS_COLUMNS;c++){
+    topContainer.appendChild(buildBedElement(c,'T',casaId));
+  }
+  for(let c=1;c<=BEDS_COLUMNS;c++){
+    bottomContainer.appendChild(buildBedElement(c,'B',casaId));
+  }
+  updateBedsInfo(casaId);
+}
+
+function toggleBedSelection(casaId, bedId){
+  const max = parseInt(document.getElementById(`guests-${casaId}`).value || 1, 10);
+  const st = reservationState[casaId];
+  st.selectedBeds = st.selectedBeds || [];
+  const idx = st.selectedBeds.indexOf(bedId);
+  if(idx >= 0){
+    st.selectedBeds.splice(idx,1);
+  } else {
+    if(st.selectedBeds.length >= max){
+      const info = document.getElementById('bedsInfo');
+      const original = info.textContent;
+      info.textContent = `Você já selecionou ${max} cama(s). Aumente o número de hóspedes para selecionar mais.`;
+      setTimeout(()=>{ info.textContent = original; }, 2200);
+      return;
+    }
+    st.selectedBeds.push(bedId);
+  }
+  renderBedsGrid(casaId);
+  updatePriceSummary(casaId);
+  updateCheckButtonState(casaId);
+}
+
+function clearBedsSelection(){
+  if(!bedsModalContext) return;
+  reservationState[bedsModalContext].selectedBeds = [];
+  renderBedsGrid(bedsModalContext);
+  updatePriceSummary(bedsModalContext);
+  updateCheckButtonState(bedsModalContext);
+}
+
+function confirmBedsSelection(){
+  if(!bedsModalContext) return;
+  document.getElementById(`beds-count-${bedsModalContext}`).textContent = `${reservationState[bedsModalContext].selectedBeds.length} selecionadas`;
+  closeBedsModal();
+  updateCheckButtonState(bedsModalContext);
+}
+
+function updateBedsInfo(casaId){
+  const info = document.getElementById('bedsInfo');
+  if(!info) return;
+  const max = parseInt(document.getElementById(`guests-${casaId}`).value || 1, 10);
+  const selected = reservationState[casaId].selectedBeds ? reservationState[casaId].selectedBeds.length : 0;
+  info.textContent = `Selecionadas: ${selected}. Máximo permitido: ${max}. Clique nas camas para (des)selecionar.`;
+  const cntEl = document.getElementById(`beds-count-${casaId}`);
+  if(cntEl) cntEl.textContent = `${selected} selecionadas`;
+  updateCheckButtonState(casaId);
+}
+
+/* ------------------------
+   Suites functions (kept separate; DOES NOT modify bed functions)
+   ------------------------ */
+function openSuitesModal(casaId){
+  document.getElementById('suitesModal').classList.add('active');
+  document.getElementById('suitesModal').setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('suitesModal').dataset.context = casaId;
+  renderSuitesGrid(casaId);
+  updateSuitesInfo(casaId);
+}
+
+function closeSuitesModal(){
+  const el = document.getElementById('suitesModal');
+  if(el){ el.classList.remove('active'); el.setAttribute('aria-hidden','true'); delete el.dataset.context; }
+  document.body.style.overflow = 'auto';
+}
+
+function buildSuiteElement(idx, casaId){
+  const suiteId = `S${idx}`;
+  const st = reservationState[casaId];
+  const isSelected = st.selectedSuites && st.selectedSuites.includes(suiteId);
+  const div = document.createElement('div');
+  div.className = 'suite' + (isSelected ? ' selected' : '');
+  div.setAttribute('role','button');
+  div.setAttribute('tabindex','0');
+  div.setAttribute('data-sid', suiteId);
+  div.innerHTML = `<div class="suite-label">Suíte ${idx}</div><div class="suite-price">${formatCurrency(SUITE_PRICE)}/diária</div>`;
+  div.addEventListener('click', function(){ toggleSuiteSelection(casaId, suiteId); });
+  div.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleSuiteSelection(casaId, suiteId); } });
+  return div;
+}
+
+function renderSuitesGrid(casaId){
+  const grid = document.getElementById('suitesGrid');
+  grid.innerHTML = '';
+  for(let i=1;i<=3;i++) grid.appendChild(buildSuiteElement(i, casaId));
+}
+
+function toggleSuiteSelection(casaId, suiteId){
+  const st = reservationState[casaId];
+  st.selectedSuites = st.selectedSuites || [];
+  const idx = st.selectedSuites.indexOf(suiteId);
+  if(idx >= 0) st.selectedSuites.splice(idx,1);
+  else {
+    if(st.selectedSuites.length >= 3){
+      const info = document.getElementById('suitesInfo');
+      const original = info.textContent;
+      info.textContent = `Você já selecionou 3 suítes.`;
+      setTimeout(()=>{ info.textContent = original; }, 2000);
+      return;
+    }
+    st.selectedSuites.push(suiteId);
+  }
+  renderSuitesGrid(casaId);
+  updateSuitesInfo(casaId);
+  updatePriceSummary(casaId);
+  updateCheckButtonState(casaId);
+}
+
+function clearSuitesSelection(){
+  const el = document.getElementById('suitesModal');
+  const casaId = el && el.dataset && el.dataset.context ? el.dataset.context : 'q777';
+  reservationState[casaId].selectedSuites = [];
+  renderSuitesGrid(casaId);
+  updateSuitesInfo(casaId);
+  updatePriceSummary(casaId);
+  updateCheckButtonState(casaId);
+}
+
+function confirmSuitesSelection(){
+  const el = document.getElementById('suitesModal');
+  const casaId = el && el.dataset && el.dataset.context ? el.dataset.context : 'q777';
+  document.getElementById(`suites-count-${casaId}`).textContent = `${reservationState[casaId].selectedSuites.length} selecionadas`;
+  closeSuitesModal();
+  updateCheckButtonState(casaId);
+}
+
+function updateSuitesInfo(casaId){
+  const info = document.getElementById('suitesInfo');
+  if(!info) return;
+  const selected = reservationState[casaId].selectedSuites ? reservationState[casaId].selectedSuites.length : 0;
+  info.textContent = `Selecionadas: ${selected}. Máximo permitido: 3. Clique nas suítes para (des)selecionar.`;
+  const cntEl = document.getElementById(`suites-count-${casaId}`);
+  if(cntEl) cntEl.textContent = `${selected} selecionadas`;
+}
+
+/* ------------------------
+   Reservation UI init
+   ------------------------ */
+function initializeReservationSystem(casaId){
+  ['checkin','checkout'].forEach(type=>{
+    const input = document.getElementById(`${type}-${casaId}`);
+    if(!input) return;
+    input.readOnly = true;
+    input.dataset.isodate = '';
+    input.addEventListener('click', e => { openCustomCalendar(input.id, casaId); });
+    input.addEventListener('focus', e => { openCustomCalendar(input.id, casaId); });
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        openCustomCalendar(input.id, casaId);
+      }
+    });
+  });
+
+  const guests = document.getElementById(`guests-${casaId}`);
+  if(guests) {
+    guests.addEventListener('change', function(){
+      reservationState[casaId].guests = parseInt(this.value);
+      // if guests reduced, shrink bed selection (original behavior)
+      if(reservationState[casaId].selectedBeds){
+        while(reservationState[casaId].selectedBeds.length > reservationState[casaId].guests){
+          reservationState[casaId].selectedBeds.pop();
+        }
+      }
+      updateBedsInfo(casaId);
+      updatePriceSummary(casaId);
+      updateCheckButtonState(casaId);
+    });
+  }
+
+  const early = document.getElementById(`early-checkin-${casaId}`);
+  const late = document.getElementById(`late-checkout-${casaId}`);
+  if(early) early.addEventListener('change', function(){ reservationState[casaId].earlyCheckin = this.checked; updatePriceSummary(casaId); });
+  if(late) late.addEventListener('change', function(){ reservationState[casaId].lateCheckout = this.checked; updatePriceSummary(casaId); });
+
+  const tHostel = document.getElementById(`transfer-hostel-${casaId}`);
+  const tAirport = document.getElementById(`transfer-airport-${casaId}`);
+  if(tHostel) tHostel.addEventListener('click', function(){ const s=reservationState[casaId]; s.transferToHostel = !s.transferToHostel; this.classList.toggle('active', s.transferToHostel); this.setAttribute('aria-pressed', s.transferToHostel?'true':'false'); updatePriceSummary(casaId); });
+  if(tAirport) tAirport.addEventListener('click', function(){ const s=reservationState[casaId]; s.transferToAirport = !s.transferToAirport; this.classList.toggle('active', s.transferToAirport); this.setAttribute('aria-pressed', s.transferToAirport?'true':'false'); updatePriceSummary(casaId); });
+
+  const checkBtn = document.getElementById(`checkAvailabilityBtn-${casaId}`);
+  if(checkBtn) checkBtn.addEventListener('click', function(){ handleReservation(casaId); });
+
+  // initialize info displays
+  if(casaId === 'q777') updateSuitesInfo(casaId);
+  else updateBedsInfo(casaId);
+
+  updateCheckButtonState(casaId);
+}
+
+function handleReservation(casaId){
+  const st = reservationState[casaId];
+  const errorEl = document.getElementById(`reserveError-${casaId}`);
+  errorEl.textContent = '';
+
+  // Enforce selection: beds for normal rooms, suites for q777
+  if(casaId === 'q777'){
+    if(!st.selectedSuites || st.selectedSuites.length === 0){
+      errorEl.textContent = "Selecione ao menos uma suíte antes de conferir disponibilidade.";
+      openSuitesModal(casaId);
+      return;
+    }
+  } else {
+    if(!st.selectedBeds || st.selectedBeds.length === 0){
+      errorEl.textContent = "Selecione ao menos uma cama antes de conferir disponibilidade.";
+      openBedsModal(casaId);
+      return;
+    }
+  }
+
+  if(!st.checkin || !st.checkout){ errorEl.textContent = "Por favor, selecione as datas de check-in e checkout."; return; }
+  const ci = new Date(st.checkin+'T00:00:00'), co = new Date(st.checkout+'T00:00:00');
+  if(co <= ci){ errorEl.textContent = "A data de checkout deve ser depois do check-in."; return; }
+  const { basePrice, extrasPrice, totalPrice } = calculatePrices(casaId);
+  const nights = calculateNights(st.checkin, st.checkout);
+  let casaName = 'Quarto';
+  if(casaId === 'jb') casaName = 'Nice Place';
+  else if(casaId === 'ar') casaName = 'Quarto Feminino FreiSa';
+  else if(casaId === 'q007') casaName = 'Quarto misto';
+  else if(casaId === 'q777') casaName = 'suites';
+
+  let msg = `Olá! Gostaria de solicitar reserva para a ${casaName}.\n\n`;
+  msg += `📅 Check-in: ${formatBRdate(st.checkin)} (entrada às 14:00)\n`;
+  msg += `📅 Check-out: ${formatBRdate(st.checkout)} (saída até 12:00)\n`;
+  msg += `🌙 Noites: ${nights}\n`;
+  msg += `👥 Hóspedes: ${st.guests}\n`;
+
+  if(casaId === 'q777'){
+    if(st.selectedSuites && st.selectedSuites.length){
+      msg += `🛏️ Suítes escolhidas: ${st.selectedSuites.join(', ')}\n`;
+    } else {
+      msg += `🛏️ Suítes escolhidas: Nenhuma\n`;
+    }
+  } else {
+    if(st.selectedBeds && st.selectedBeds.length){
+      msg += `🛏️ Camas escolhidas: ${st.selectedBeds.join(', ')}\n`;
+    } else {
+      msg += `🛏️ Camas escolhidas: Nenhuma\n`;
+    }
+  }
+
+  msg += `\n💰 Resumo de valores:\n`;
+  msg += `• Valor base: ${formatCurrency(basePrice)}\n`;
+  if(st.earlyCheckin) msg += `• Check-in antecipado: ${formatCurrency(EXTRA_OPTION_PRICE)}\n`;
+  if(st.lateCheckout) msg += `• Check-out estendido: ${formatCurrency(EXTRA_OPTION_PRICE)}\n`;
+  if(st.transferToHostel) msg += `• Transfer ida ao hostel: ${formatCurrency(TRANSFER_PRICE)}\n`;
+  if(st.transferToAirport) msg += `• Transfer volta para aeroporto: ${formatCurrency(TRANSFER_PRICE)}\n`;
+  msg += `\n💵 Total: ${formatCurrency(totalPrice)}\n\nObrigado!`;
+
+  const encoded = encodeURIComponent(msg);
+  const waLink = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encoded;
+  const apiLink = "https://api.whatsapp.com/send?phone=" + WHATSAPP_NUMBER + "&text=" + encoded;
+
+  try {
+    const win = window.open(waLink, "_blank");
+    if(!win){
+      setTimeout(()=>{ window.location.href = apiLink; }, 350);
+    }
+  } catch(e) {
+    window.location.href = apiLink;
+  }
+}
+
+/* ------------------------
+   UI / carousel / lightbox
+   ------------------------ */
+function extractUrl(bg){
+  if(!bg) return '';
+  const m = bg.match(/url\((?:'|")?(.*?)(?:'|")?\)/);
+  return m ? m[1] : bg.replace(/(^url\()|(\)$)|["']/g,'');
+}
+(function initCarousels(){
+  window.__carousels = window.__carousels || {};
+  const els = document.querySelectorAll('.carousel');
+  els.forEach(function(el){
+    const idAttr = el.id || '';
+    const m = idAttr.match(/carousel(\d+)/);
+    if(!m) return;
+    const cid = parseInt(m[1],10);
+    const slidesEl = el.querySelector('.carousel-slides');
+    if(!slidesEl) return;
+    const slides = Array.from(slidesEl.children);
+    const images = slides.map(s => extractUrl(s.style.backgroundImage || getComputedStyle(s).backgroundImage));
+    const indicatorsEl = document.getElementById('indicators' + cid);
+    let current = 0;
+    function update(){ slidesEl.style.transform = 'translateX(' + (-current * 100) + '%)'; if(indicatorsEl) Array.from(indicatorsEl.children).forEach((d,i)=>d.classList.toggle('active', i===current)); }
+    if(indicatorsEl){ indicatorsEl.innerHTML=''; images.forEach((_,i)=>{ const dot = document.createElement('div'); dot.className='indicator'+(i===0?' active':''); dot.onclick = e => { e.stopPropagation(); current=i; update(); }; indicatorsEl.appendChild(dot); }); }
+    window.__carousels[cid] = { slidesEl, slides, images, get current(){ return current; }, set current(v){ current = v; }, update };
+    setInterval(()=>{ if(!window.__carousels[cid]) return; current = (current + 1) % images.length; update(); }, 6000 + cid*300);
+    update();
+  });
+
+  window.moveSlide = function(carouselId, direction){
+    const c = window.__carousels[carouselId]; if(!c) return;
+    const len = c.images.length;
+    let next = (c.current + direction + len) % len;
+    c.current = next; c.update();
+  };
+  window.getCurrentSlide = function(carouselId){ const c = window.__carousels[carouselId]; if(!c) return ''; return c.images[c.current]; };
+})();
+
+(function initHero(){
+  const slidesEl = document.getElementById('heroSlides'); if(!slidesEl) return;
+  const slides = Array.from(slidesEl.children);
+  const indicatorsEl = document.getElementById('heroIndicators');
+  const prevBtn = document.getElementById('heroPrev');
+  const nextBtn = document.getElementById('heroNext');
+  let current = 0;
+  function update(){ slidesEl.style.transform = 'translateX(' + (-current * 100) + '%)'; if(indicatorsEl) Array.from(indicatorsEl.children).forEach((d,i)=>d.classList.toggle('active', i===current)); }
+  if(indicatorsEl){ indicatorsEl.innerHTML=''; slides.forEach((_,idx)=>{ const dot = document.createElement('div'); dot.className='indicator'+(idx===0?' active':''); dot.onclick = e => { e.stopPropagation(); current=idx; update(); }; indicatorsEl.appendChild(dot); }); }
+  if(prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); current = (current - 1 + slides.length) % slides.length; update(); });
+  if(nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); current = (current + 1) % slides.length; update(); });
+
+  let timer = setInterval(()=>{ current = (current + 1) % slides.length; update(); }, 5000);
+  const heroSection = document.querySelector('.hero');
+  if(heroSection){
+    heroSection.addEventListener('mouseenter', ()=>clearInterval(timer));
+    heroSection.addEventListener('mouseleave', ()=> timer = setInterval(()=>{ current = (current + 1) % slides.length; update(); }, 5000));
+    heroSection.addEventListener('focusin', ()=>clearInterval(timer));
+    heroSection.addEventListener('focusout', ()=> timer = setInterval(()=>{ current = (current + 1) % slides.length; update(); }, 5000));
+  }
+  update();
+})();
+
+window.__lightboxIndex = window.__lightboxIndex || {};
+function openLightbox(id, imgSrc){
+  const lb = document.getElementById('lightbox' + id);
+  const imgEl = document.getElementById('lightbox-image' + id);
+  const carousel = window.__carousels && window.__carousels[id];
+  const source = imgSrc || (carousel ? carousel.images[carousel.current] : '');
+  if(imgEl) imgEl.src = source || '';
+  if(lb) lb.classList.add('active');
+  if(carousel) window.__lightboxIndex[id] = carousel.current || 0;
+}
+function closeLightbox(id){ const lb = document.getElementById('lightbox' + id); if(lb) lb.classList.remove('active'); }
+function moveLightboxSlide(id, direction){
+  const carousel = window.__carousels && window.__carousels[id];
+  if(!carousel) return;
+  let idx = window.__lightboxIndex[id] ?? carousel.current;
+  const len = carousel.images.length;
+  idx = (idx + direction + len) % len;
+  window.__lightboxIndex[id] = idx;
+  const imgEl = document.getElementById('lightbox-image' + id);
+  if(imgEl) imgEl.src = carousel.images[idx];
+  carousel.current = idx; carousel.update();
+}
+
+/* ------------------------
+   Modal helpers, init and accessibility
+   ------------------------ */
+function openModal(id){
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.classList.add('active');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id){
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.classList.remove('active');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow = 'auto';
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  ['jb','ar','q007','q777'].forEach(id => initializeReservationSystem(id));
+  ['jb','ar','q007','q777'].forEach(id => updatePriceSummary(id));
+  document.querySelectorAll('.show-more-btn').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      const target = btn.getAttribute('data-modal');
+      if(target) openModal(target);
+    });
+  });
+  ['jb','ar','q007','q777'].forEach(id => updateCheckButtonState(id));
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    const cal = document.getElementById('customCalendarModal');
+    if(cal && cal.classList.contains('active')) { closeCustomCalendar(); return; }
+    const bm = document.getElementById('bedsModal');
+    if(bm && bm.classList.contains('active')) { closeBedsModal(); return; }
+    const sm = document.getElementById('suitesModal');
+    if(sm && sm.classList.contains('active')) { closeSuitesModal(); return; }
+    ['modal1','modal2'].forEach(id => {
+      const m = document.getElementById(id);
+      if(m && m.classList.contains('active')) closeModal(id);
+    });
+  }
+});
+
+function toggleFaq(el){
+  const item = el.parentElement;
+  item.classList.toggle('active');
+}
+</script>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">FreiSa Hostel</div>
+      <p class="footer-description">Refúgio exclusivo em Copacabana - RJ<br/>Onde a natureza encontra o conforto</p>
+      <div class="footer-links"><h4>Entre em contato:</h4><p>📱 WhatsApp</p><p>✉️ Email</p></div>
+      <div class="footer-links"><h4>Siga-nos:</h4><p>📷 Instagram</p><p>👍 Facebook</p></div>
+      <div class="footer-copyright"><p>© 2025 FreiSa Hostel. Todos os direitos reservados.</p><p>Desenvolvido com 💚 para amantes da natureza</p></div>
+    </div>
+  </footer>
+
+<script>
+/* Remote Google Sheet integration (GIDs já preenchidos)
+   Cole ANTES de </body> no seu HTML.
+*/
+(async function(){
+  const SHEET_ID = "1J2broV9vIT8s4Luj02p7lu1uwvzYAbgzXlZYZafUE84";
+
+  // export URLs (GIDs fornecidos)
+  const CSV_URL_PRICING  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=204835200`;
+  const CSV_URL_CALENDAR = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1626238417`;
+  const CSV_URL_BEDS     = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1834656313`;
+  const CSV_URL_SUITES   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=49421938`;
+  const CSV_URL_SETTINGS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=661911707`;
+
+  // If you run into CORS issues, set CORS_PREFIX to 'https://corsproxy.io/?'
+  const CORS_PREFIX = '';
+
+  async function fetchCsvObj(url){
+    if(!url) return [];
+    try{
+      const r = await fetch((CORS_PREFIX || '') + url);
+      const text = await r.text();
+      const rows = text.replace(/\r/g,'').split('\n').filter(Boolean);
+      if(rows.length === 0) return [];
+      const headers = rows[0].split(',').map(h=>h.trim().replace(/^\uFEFF/, ''));
+      const objs = [];
+      for(let i=1;i<rows.length;i++){
+        const cols = rows[i].split(',');
+        if(cols.length === 0) continue;
+        const obj = {};
+        for(let j=0;j<headers.length;j++){
+          obj[headers[j]] = (cols[j]||'').trim();
+        }
+        objs.push(obj);
+      }
+      return objs;
+    }catch(err){
+      console.error("Erro ao buscar CSV", url, err);
+      return [];
+    }
+  }
+
+  window.remoteControl = {
+    pricing: [],
+    calendarOverrides: new Map(),
+    beds: new Map(),
+    suites: new Map(),
+    settings: {}
+  };
+
+  async function loadPricing(){
+    const rows = await fetchCsvObj(CSV_URL_PRICING);
+    window.remoteControl.pricing = rows.map(r=>({
+      room_id: (r.room_id||'').trim(),
+      from_date: (r.from_date||'').trim(),
+      to_date: (r.to_date||'').trim(),
+      price_per_guest: Number(r.price_per_guest||0),
+      notes: r.notes||''
+    })).filter(x=>x.room_id);
+    console.log('pricing loaded', window.remoteControl.pricing);
+  }
+  async function loadCalendar(){
+    const rows = await fetchCsvObj(CSV_URL_CALENDAR);
+    window.remoteControl.calendarOverrides.clear();
+    rows.forEach(r=>{
+      const date = (r.date||'').trim();
+      const room = (r.room_id||'').trim() || 'jb';
+      const status = (r.status||'available').trim().toLowerCase();
+      if(!date) return;
+      if(!window.remoteControl.calendarOverrides.has(room)) window.remoteControl.calendarOverrides.set(room, new Map());
+      window.remoteControl.calendarOverrides.get(room).set(date, status);
+    });
+    console.log('calendar loaded', window.remoteControl.calendarOverrides);
+  }
+  async function loadBeds(){
+    const rows = await fetchCsvObj(CSV_URL_BEDS);
+    window.remoteControl.beds.clear();
+    rows.forEach(r=>{
+      const bed = (r.bed_id||'').trim();
+      const room = (r.room_id||'').trim() || 'ar';
+      const status = (r.status||'available').trim().toLowerCase();
+      if(!bed) return;
+      if(!window.remoteControl.beds.has(room)) window.remoteControl.beds.set(room, new Map());
+      window.remoteControl.beds.get(room).set(bed, status);
+    });
+    console.log('beds loaded', window.remoteControl.beds);
+  }
+  async function loadSuites(){
+    const rows = await fetchCsvObj(CSV_URL_SUITES);
+    window.remoteControl.suites.clear();
+    rows.forEach(r=>{
+      const s = (r.suite_id||'').trim();
+      const room = (r.room_id||'').trim() || 'q777';
+      const status = (r.status||'available').trim().toLowerCase();
+      if(!s) return;
+      if(!window.remoteControl.suites.has(room)) window.remoteControl.suites.set(room, new Map());
+      window.remoteControl.suites.get(room).set(s, status);
+    });
+    console.log('suites loaded', window.remoteControl.suites);
+  }
+  async function loadSettings(){
+    const rows = await fetchCsvObj(CSV_URL_SETTINGS);
+    window.remoteControl.settings = {};
+    rows.forEach(r=>{
+      if(r.key) window.remoteControl.settings[r.key] = r.value || '';
+    });
+    console.log('settings loaded', window.remoteControl.settings);
+  }
+
+  function applyCalendarOverrides(){
+    window.remoteReservedMap = new Map();
+    for(const [room, map] of window.remoteControl.calendarOverrides.entries()){
+      const s = new Set();
+      for(const [date, status] of map.entries()){
+        if(status === 'reserved') s.add(date);
+      }
+      window.remoteReservedMap.set(room, s);
+    }
+    console.log('remoteReservedMap applied', window.remoteReservedMap);
+  }
+  function applyBedsOverrides(){
+    if(!window.reservationState) window.reservationState = window.reservationState || {};
+    for(const [room, map] of window.remoteControl.beds.entries()){
+      if(!window.reservationState[room]) window.reservationState[room] = window.reservationState[room] || {};
+      window.reservationState[room].remoteReservedBeds = [];
+      for(const [bid, status] of map.entries()){
+        if(status === 'reserved') window.reservationState[room].remoteReservedBeds.push(bid);
+      }
+    }
+    console.log('beds overrides applied to reservationState');
+  }
+  function applySuitesOverrides(){
+    if(!window.reservationState) window.reservationState = window.reservationState || {};
+    for(const [room, map] of window.remoteControl.suites.entries()){
+      if(!window.reservationState[room]) window.reservationState[room] = window.reservationState[room] || {};
+      window.reservationState[room].remoteReservedSuites = [];
+      for(const [sid, status] of map.entries()){
+        if(status === 'reserved') window.reservationState[room].remoteReservedSuites.push(sid);
+      }
+    }
+    console.log('suites overrides applied to reservationState');
+  }
+
+  function patchSiteFunctions(){
+    if(window.fetchCalendarReservations){
+      window._orig_fetchCalendarReservations = window.fetchCalendarReservations;
+      window.fetchCalendarReservations = async function(year, month, casaId){
+        if(window.remoteReservedMap && window.remoteReservedMap.has(casaId)){
+          window.reservedRangesSet = new Set();
+          const s = window.remoteReservedMap.get(casaId);
+          for(const d of s) window.reservedRangesSet.add(d);
+          return;
+        }
+        return window._orig_fetchCalendarReservations(year, month, casaId);
+      };
+      console.log('fetchCalendarReservations patched');
+    }
+    if(window.buildBedElement){
+      window._orig_buildBedElement = window.buildBedElement;
+      window.buildBedElement = function(col, pos, casaId){
+        const el = window._orig_buildBedElement(col, pos, casaId);
+        try{
+          const bedId = `C${col}-${pos}`;
+          const st = (window.reservationState && window.reservationState[casaId]) || {};
+          const reservedList = st.remoteReservedBeds || [];
+          if(reservedList.indexOf(bedId) >= 0){
+            el.classList.add('reserved');
+            el.classList.remove('selected');
+            el.style.cursor = 'not-allowed';
+            el.onclick = null;
+            el.onkeydown = null;
+            el.setAttribute('aria-disabled','true');
+          }
+        }catch(e){ console.warn(e); }
+        return el;
+      };
+      console.log('buildBedElement patched');
+    }
+    if(window.buildSuiteElement){
+      window._orig_buildSuiteElement = window.buildSuiteElement;
+      window.buildSuiteElement = function(idx, casaId){
+        const el = window._orig_buildSuiteElement(idx, casaId);
+        try{
+          const suiteId = `S${idx}`;
+          const st = (window.reservationState && window.reservationState[casaId]) || {};
+          const reservedList = st.remoteReservedSuites || [];
+          if(reservedList.indexOf(suiteId) >= 0){
+            el.classList.add('reserved');
+            el.classList.remove('selected');
+            el.style.cursor = 'not-allowed';
+            el.onclick = null;
+            el.onkeydown = null;
+            el.setAttribute('aria-disabled','true');
+          }
+        }catch(e){ console.warn(e); }
+        return el;
+      };
+      console.log('buildSuiteElement patched');
+    }
+  }
+
+  async function refreshRemoteControls(){
+    await Promise.all([loadSettings(), loadPricing(), loadCalendar(), loadBeds(), loadSuites()]);
+    applyCalendarOverrides();
+    applyBedsOverrides();
+    applySuitesOverrides();
+    patchSiteFunctions();
+
+    try{
+      if(window.calendarContext && window.setupCalendar){
+        const now = new Date();
+        await window.setupCalendar(now.getFullYear(), now.getMonth(), window.calendarContext, 'customCalendarModal');
+      }
+    }catch(e){}
+    try{
+      ['jb','ar','q007','q777'].forEach(id=>{
+        if(window.renderBedsGrid) window.renderBedsGrid(id);
+      });
+    }catch(e){}
+    try{
+      ['jb','ar','q007','q777'].forEach(id=>{
+        if(window.updatePriceSummary) window.updatePriceSummary(id);
+      });
+    }catch(e){}
+    console.log('refreshRemoteControls done');
+  }
+
+  function startAutoRefresh(){
+    const mins = Number(window.remoteControl.settings.auto_refresh_minutes || 0);
+    if(mins > 0){
+      setInterval(()=>{ refreshRemoteControls().catch(console.error); }, mins*60*1000);
+      console.log('auto-refresh every', mins, 'minutes enabled');
+    }
+  }
+
+  window.refreshRemoteControls = refreshRemoteControls;
+  window.remoteControlStart = async function(){
+    await refreshRemoteControls();
+    startAutoRefresh();
+  };
+
+  try{
+    await window.remoteControlStart();
+    console.log('Remote integration initial load complete. Use refreshRemoteControls() to reload.');
+  }catch(err){
+    console.error('Erro na inicialização da remote integration', err);
+  }
+
+})();
+</script>
+</body>
+</html>
